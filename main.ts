@@ -1,4 +1,8 @@
-import { Application, Router } from "https://deno.land/x/oak@v6.2.0/mod.ts";
+import {
+  Application,
+  Router,
+  send,
+} from "https://deno.land/x/oak@v6.2.0/mod.ts";
 import {
   adapterFactory,
   engineFactory,
@@ -12,6 +16,14 @@ const app = new Application();
 const router = new Router();
 
 app.use(viewEngine(oakAdapter, ejsEngine));
+
+// Static content
+app.use(async (context, next) => {
+  await send(context, context.request.url.pathname, {
+    root: `${Deno.cwd()}/public/static`,
+  });
+  next();
+});
 
 router.get("/", (context) => {
   context.render("public/views/index.html");
